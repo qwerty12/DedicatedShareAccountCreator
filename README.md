@@ -1,1 +1,3 @@
 # DedicatedShareAccountCreator
+
+Should be idempotent.
