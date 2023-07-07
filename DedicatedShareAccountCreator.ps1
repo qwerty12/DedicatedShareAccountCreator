@@ -73,8 +73,138 @@ public class MuiString {
 }
 "@
 
-# Enable File Sharing ala the Network and Sharing Centre (you can run tlbimp on dtsh.dll yourself to get this DLL)
-Add-Type -Path $(Join-Path -Path $PSScriptRoot -ChildPath "Interop.dtshLib.dll")
+# Enable File Sharing ala the Network and Sharing Centre
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace dtshLib
+{
+	[CoClass(typeof(DetectionAndSharingClass))]
+	[Guid("1FDA955C-61FF-11DA-978C-0008744FAAB7")]
+	[ComImport]
+	public interface DetectionAndSharing : IDetectionAndSharing
+	{
+	}
+
+	[TypeLibType(2)]
+	[ClassInterface(ClassInterfaceType.None)]
+	[Guid("1FDA955B-61FF-11DA-978C-0008744FAAB7")]
+	[ComImport]
+	public class DetectionAndSharingClass : IDetectionAndSharing, DetectionAndSharing
+	{
+		/*[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		public extern DetectionAndSharingClass();*/
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		public virtual extern void GetStatus([ComAliasName("dtshLib.DtshType")] [In] DtshType DtshType, [ComAliasName("dtshLib.DtshState")] out DtshState pState, [ComAliasName("dtshLib.DtshAction")] [In] [Out] ref DtshAction pAvailableAction);
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		public virtual extern void TurnOn([ComAliasName("dtshLib.wireHWND")] [In] ref _RemotableHandle hwndParent, [ComAliasName("dtshLib.DtshType")] [In] DtshType DtshType, [In] int bOn);
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		public virtual extern NET_FW_PROFILE_TYPE2_ GetCurrentFwProfile();
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		public virtual extern void GetStatusForProfile([In] NET_FW_PROFILE_TYPE2_ fwProfileType, [ComAliasName("dtshLib.DtshType")] [In] DtshType DtshType, [ComAliasName("dtshLib.DtshState")] out DtshState pState, [ComAliasName("dtshLib.DtshAction")] [In] [Out] ref DtshAction pAvailableAction);
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		public virtual extern void TurnOnForProfile([ComAliasName("dtshLib.wireHWND")] [In] ref _RemotableHandle hwndParent, [In] NET_FW_PROFILE_TYPE2_ fwProfileType, [ComAliasName("dtshLib.DtshType")] [In] DtshType DtshType, [In] int bOn);
+	}
+
+	public enum DtshAction
+	{
+		Toggle,
+		TurnOffAndEnableFw,
+		TurnOnAndDisableFwBlockAllIncoming,
+		NoneFwDisabled,
+		NoneFwGpOverride,
+		NoneThirdPartyFwInstalled
+	}
+
+	public enum DtshState
+	{
+		Off,
+		On,
+		Custom
+	}
+
+	public enum DtshType
+	{
+		Discovery,
+		FileSharing,
+		MediaSharing,
+		DiscoveryAndFileSharing,
+		All,
+		DtshTypeMax
+	}
+
+	[Guid("1FDA955C-61FF-11DA-978C-0008744FAAB7")]
+	[InterfaceType(1)]
+	[TypeLibType(128)]
+	[ComImport]
+	public interface IDetectionAndSharing
+	{
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		void GetStatus([ComAliasName("dtshLib.DtshType")] [In] DtshType DtshType, [ComAliasName("dtshLib.DtshState")] out DtshState pState, [ComAliasName("dtshLib.DtshAction")] [In] [Out] ref DtshAction pAvailableAction);
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		void TurnOn([ComAliasName("dtshLib.wireHWND")] [In] ref _RemotableHandle hwndParent, [ComAliasName("dtshLib.DtshType")] [In] DtshType DtshType, [In] int bOn);
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		NET_FW_PROFILE_TYPE2_ GetCurrentFwProfile();
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		void GetStatusForProfile([In] NET_FW_PROFILE_TYPE2_ fwProfileType, [ComAliasName("dtshLib.DtshType")] [In] DtshType DtshType, [ComAliasName("dtshLib.DtshState")] out DtshState pState, [ComAliasName("dtshLib.DtshAction")] [In] [Out] ref DtshAction pAvailableAction);
+		[MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+		void TurnOnForProfile([ComAliasName("dtshLib.wireHWND")] [In] ref _RemotableHandle hwndParent, [In] NET_FW_PROFILE_TYPE2_ fwProfileType, [ComAliasName("dtshLib.DtshType")] [In] DtshType DtshType, [In] int bOn);
+	}
+
+	public enum NET_FW_PROFILE_TYPE2_
+	{
+		NET_FW_PROFILE2_DOMAIN = 1,
+		NET_FW_PROFILE2_PRIVATE,
+		NET_FW_PROFILE2_PUBLIC = 4,
+		NET_FW_PROFILE2_ALL = 2147483647
+	}
+
+	public enum _DtshAction
+	{
+		Toggle,
+		TurnOffAndEnableFw,
+		TurnOnAndDisableFwBlockAllIncoming,
+		NoneFwDisabled,
+		NoneFwGpOverride,
+		NoneThirdPartyFwInstalled
+	}
+
+	public enum _DtshState
+	{
+		Off,
+		On,
+		Custom
+	}
+
+	public enum _DtshType
+	{
+		Discovery,
+		FileSharing,
+		MediaSharing,
+		DiscoveryAndFileSharing,
+		All,
+		DtshTypeMax
+	}
+
+	[StructLayout(LayoutKind.Sequential, Pack = 4)]
+	public struct _RemotableHandle
+	{
+		public int fContext;
+		public __MIDL_IWinTypes_0009 u;
+	}
+
+	[StructLayout(LayoutKind.Explicit, Pack = 4)]
+	public struct __MIDL_IWinTypes_0009
+	{
+		[FieldOffset(0)]
+		public int hInproc;
+		[FieldOffset(0)]
+		public int hRemote;
+	}
+}
+"@
 $dtsh = New-Object -TypeName dtshLib.DetectionAndSharingClass
 #[dtshLib.DtshState]$state = [dtshLib.DtshAction]$availableAction = 0
 #$dtsh.GetStatusForProfile([dtshLib.NET_FW_PROFILE_TYPE2_]::NET_FW_PROFILE2_PRIVATE, [dtshLib.DtshType]::FileSharing, [ref]$state, [ref]$availableAction)
