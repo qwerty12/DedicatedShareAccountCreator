@@ -40,8 +40,8 @@ if ($MakeDedicatedAccount) {
     $adsi.CommitChanges()
 
     # Prevent account from being logged on for use outside of network purposes 
-    Import-Module -Name $(Join-Path -Path $PSScriptRoot -ChildPath "UserRights.psm1")
-    Grant-UserRight -Account $Username -Right SeDenyInteractiveLogonRight,SeDenyRemoteInteractiveLogonRight,SeDenyServiceLogonRight,SeDenyBatchLogonRight
+    Import-Module -Name $(Join-Path -Path $PSScriptRoot -ChildPath "UserRightsLsa.psm1")
+    Add-UserRight -Username $Username -Rights SeDenyInteractiveLogonRight,SeDenyRemoteInteractiveLogonRight,SeDenyServiceLogonRight,SeDenyBatchLogonRight
 }
 
 ## 2.
